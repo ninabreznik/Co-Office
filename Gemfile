@@ -36,7 +36,9 @@ group :development, :test do
   gem 'rspec-rails', '~> 2.0'
 end
 
-gem "capybara"
+gem 'capybara', '1.1.2'
+
+gem 'bcrypt-ruby', '~> 3.0.0'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.1.2'
