@@ -6,8 +6,23 @@ class UsersController < ApplicationController
   end
  
   def create
-    @user = User.new(params[:user])
+    @user = User.new(user_params)
     @user.save
+    redirect_to @user
+  end
+
+  def show
+    @user = User.find(params[:id])
+  end
+
+  def update
+    if @user.update_attributes(params[:user])
+      sign_in @user
+      flash[:success] = "Profile updated"
+      redirect_to @user
+    else
+      render 'edit'
+    end
   end
 
   private
