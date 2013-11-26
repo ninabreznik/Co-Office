@@ -15,6 +15,12 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+    # respond_to do |f|
+    #   f.html
+    #   f.json do 
+    #     render json: {name: @user.name}
+    #   end
+    # end
   end
 
   def update
