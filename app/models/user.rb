@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-
+  has_many :microposts, dependent: :destroy
 #attr_accessor :name, :email, :password, :password_confirmation
   
   before_save { |user| user.email = user.email.downcase }
@@ -20,6 +20,10 @@ class User < ActiveRecord::Base
 
   def User.encrypt(token)
     Digest::SHA1.hexdigest(token.to_s)
+  end
+
+  def feed
+    #Micropost.from_users_followed_by(self)
   end
 
   private

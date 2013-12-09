@@ -14,6 +14,9 @@ describe User do
   it { should respond_to(:password_digest) }
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
+  it { should respond_to(:admin) }
+  it { should respond_to(:microposts) }
+  it { should respond_to(:feed) }
 
   describe "remember token" do
     before { @user.save }
@@ -35,6 +38,16 @@ describe User do
   describe "when name is too long" do
     before { @user.name = "a" * 51 }
     it { should_not be_valid }
+  end
+ 
+  describe "micropost associations" do
+
+    before { @user.save }
+    let!(:older_micropost) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
+    end
+    let!(:newer_micropost) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.hour.ago)
   end
 
   describe "when email format is invalid" do
@@ -94,7 +107,6 @@ describe User do
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
-  it { should respond_to(:authenticate) }
   it { should respond_to(:admin) }
 
   it { should be_valid }
@@ -108,4 +120,27 @@ describe User do
 
     it { should be_admin }
   end
+
+   it "should destroy associated microposts" do
+      microposts = @user.microposts.to_a
+      @user.destroy
+      expect(microposts).not_to be_empty
+      microposts.each do |micropost|
+        expect(Micropost.where(id: micropost.id)).to be_empty
+      end
+    end
+  end
+
+  describe "status" do
+      let(:unfollowed_post) do
+        FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
+      end
+
+      its(:feed) { should include(newer_micropost) }
+      its(:feed) { should include(older_micropost) }
+      its(:feed) { should_not include(unfollowed_post) }
+    end
+
+
+
 end
