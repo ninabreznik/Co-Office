@@ -49,14 +49,42 @@ describe "Authentication" do
   describe "authorization" do
 
     describe "for non-signed-in users" do
-    let(:user) { FactoryGirl.create(:user) }
+      let(:user) { FactoryGirl.create(:user) }
 
     describe "in the Users controller" do
 
-    describe "visiting the edit page" do
-      before { visit edit_user_path(user) }
-      it { should have_title('Sign in') }
-    end
+        describe "for non-signed-in users" do
+        let(:user) { FactoryGirl.create(:user) }
+
+      describe "in the Users controller" do
+
+        describe "visiting the edit page" do
+          before { visit edit_user_path(user) }
+          it { should have_title('Sign in') }
+        end
+
+        describe "visiting the following page" do
+          before { visit following_user_path(user) }
+          it { should have_title('Sign in') }
+        end
+
+        describe "visiting the followers page" do
+          before { visit followers_user_path(user) }
+          it { should have_title('Sign in') }
+        end
+      end
+
+      describe "in the Relationships controller" do
+        describe "submitting to the create action" do
+          before { post relationships_path }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+
+        describe "submitting to the destroy action" do
+          before { delete relationship_path(1) }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+      end
 
     describe "submitting to the update action" do
       before { patch user_path(user) }
@@ -107,6 +135,33 @@ end
       end
     end
   end
-end
+  describe "following/followers" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:other_user) { FactoryGirl.create(:user) }
+    before { user.follow!(other_user) }
 
+    describe "followed users" do
+      before do
+        sign_in user
+        visit following_user_path(user)
+      end
+
+      it { should have_title(full_title('Following')) }
+      it { should have_selector('h3', text: 'Following') }
+      it { should have_link(other_user.name, href: user_path(other_user)) }
+    end
+
+    describe "followers" do
+      before do
+        sign_in other_user
+        visit followers_user_path(other_user)
+      end
+
+      it { should have_title(full_title('Followers')) }
+      it { should have_selector('h3', text: 'Followers') }
+      it { should have_link(user.name, href: user_path(user)) }
+    end
+  end
+end
+end
 
